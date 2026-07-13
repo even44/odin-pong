@@ -1,136 +1,92 @@
 package main
 
 import "core:fmt"
+import rl "vendor:raylib"
 
-import "vendor:glfw"
-import gl "vendor:OpenGL"
+PADDLE_SPEED :: 35
 
-// Window name
-PROGRAM_NAME :: "Odin Pong"
-
-// OpenGL version to use
-GL_MAJOR_VERSION :: 4
-GL_MINOR_VERSION :: 5
-
-running : b32 = true
-
-main :: proc(){
-	// Initialize glfw
-	// GLFW_TRUE if successful, or GLFW_FALSE if an error occurred.
-	// GLFW_TRUE = 1
-	// GLFW_FALSE = 0
-	// https://www.glfw.org/docs/latest/group__init.html#ga317aac130a235ab08c6db0834907d85e
-	if(glfw.Init() != true){
-		// Print Line
-		fmt.println("Failed to initialize GLFW")
-		// Return early
-		return
-	}
-
-	glfw.WindowHint(glfw.RESIZABLE, glfw.TRUE)
-	glfw.WindowHint(glfw.OPENGL_FORWARD_COMPAT, glfw.TRUE)
-	glfw.WindowHint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
-	glfw.WindowHint(glfw.CONTEXT_VERSION_MAJOR, GL_MAJOR_VERSION)
-	glfw.WindowHint(glfw.CONTEXT_VERSION_MINOR, GL_MINOR_VERSION)
-
-	// the defer keyword makes the procedure run when the calling procedure exits scope
-	// Deferes are executed in reverse order. So the window will get destoryed first
-	// They can also just be called manually later instead without defer. This way of doing it ensures are terminated.
-	// https://odin-lang.org/docs/overview/#defer-statement
-	// https://www.glfw.org/docs/3.1/group__init.html#gaaae48c0a18607ea4a4ba951d939f0901
-	defer glfw.Terminate()
-
-	// Create the window
-	// Return WindowHandle rawPtr
-	// https://www.glfw.org/docs/3.3/group__window.html#ga3555a418df92ad53f917597fe2f64aeb
-	window := glfw.CreateWindow(512, 512, PROGRAM_NAME, nil, nil)
-	// https://www.glfw.org/docs/latest/group__window.html#gacdf43e51376051d2c091662e9fe3d7b2
-	defer glfw.DestroyWindow(window)
-
-	// If the window pointer is invalid
-	if window == nil {
-		fmt.println("Unable to create window")
-		return
-	}
-
-	glfw.MakeContextCurrent(window)
-
-	// Enable vsync
-	// https://www.glfw.org/docs/3.3/group__context.html#ga6d4e0cdf151b5e579bd67f13202994ed
-	glfw.SwapInterval(1)
-
-	// This function sets the key callback of the specified window, which is called when a key is pressed, repeated or released.
-	// https://www.glfw.org/docs/3.3/group__input.html#ga1caf18159767e761185e49a3be019f8d
-	glfw.SetKeyCallback(window, key_callback)
-
-	// This function sets the framebuffer resize callback of the specified window, which is called when the framebuffer of the specified window is resized.
-	// https://www.glfw.org/docs/3.3/group__window.html#gab3fb7c3366577daef18c0023e2a8591f
-	glfw.SetFramebufferSizeCallback(window, size_callback)
-
-	// Set OpenGL Context bindings using the helper function
-	// See Odin Vendor source for specifc implementation details
-	// https://github.com/odin-lang/Odin/tree/master/vendor/OpenGL
-	// https://www.glfw.org/docs/3.3/group__context.html#ga35f1837e6f666781842483937612f163
-
-	// casting the c.int to int
-	// This is needed because the GL_MAJOR_VERSION has an explicit type of c.int
-	gl.load_up_to(int(GL_MAJOR_VERSION), GL_MINOR_VERSION, glfw.gl_set_proc_address) 
-
-	init()
-
-	// There is only one kind of loop in Odin called for
-	// https://odin-lang.org/docs/overview/#for-statement
-	for (!glfw.WindowShouldClose(window) && running) {
-		// Process waiting events in queue
-		// https://www.glfw.org/docs/3.3/group__window.html#ga37bd57223967b4211d60ca1a0bf3c832
-		glfw.PollEvents()
-		
-		update()
-		draw()
-
-		// This function swaps the front and back buffers of the specified window.
-		// See https://en.wikipedia.org/wiki/Multiple_buffering to learn more about Multiple buffering
-		// https://www.glfw.org/docs/3.0/group__context.html#ga15a5a1ee5b3c2ca6b15ca209a12efd14
-		glfw.SwapBuffers((window))
-	}
-
-	exit()
+Paddle :: struct {
+	y_offset : f32,
+	size: rl.Vector2,
+	color: rl.Color,
+}
+p1Paddle := Paddle {
+	0,
+	{16,128},
+	rl.Color{255,255,255,255}
 }
 
-init :: proc(){
-	// Own initialization code there
-	fmt.println("Init")
+p2Paddle := Paddle {
+	0,
+	{16,128},
+	rl.Color{255,255,255,255}
 }
 
-update :: proc(){
-	// Own update code here
+Ball :: struct {
+	pos: rl.Vector2,
+	radius: f32
+	velocity: rl.Vector2,
+}
+
+main :: proc() {
+    // 1. Initialize Window & Context
+    rl.InitWindow(512, 512, "Odin Pong - Raylib")
+    defer rl.CloseWindow()
+
+    rl.SetTargetFPS(60)
+
+    // 2. Main Game Loop
+    for !rl.WindowShouldClose() {
+        // Update logic (like checking keys)
+        if rl.IsKeyDown(.ESCAPE) {
+            break
+        }
+
+        handleInput()
+        draw()
+
+    }
+}
+
+
+handleInput :: proc(){
+	height := rl.GetScreenHeight()
+
+	maxPaddleOffset := .5 - (p1Paddle.size.y / (2 * f32(height)))
+	maxPaddleOffset *= 100
+
+	if rl.IsKeyDown(rl.KeyboardKey.DOWN){
+		p2Paddle.y_offset = rl.Clamp(p2Paddle.y_offset + PADDLE_SPEED * rl.GetFrameTime(), -maxPaddleOffset,maxPaddleOffset)
+	}
+	if rl.IsKeyDown(rl.KeyboardKey.UP){
+		p2Paddle.y_offset = rl.Clamp(p2Paddle.y_offset - PADDLE_SPEED * rl.GetFrameTime(), -maxPaddleOffset,maxPaddleOffset)
+	}
+
+	if rl.IsKeyDown(rl.KeyboardKey.S){
+		p1Paddle.y_offset = rl.Clamp(p1Paddle.y_offset + PADDLE_SPEED * rl.GetFrameTime(), -maxPaddleOffset,maxPaddleOffset)
+	}
+	if rl.IsKeyDown(rl.KeyboardKey.W){
+		p1Paddle.y_offset = rl.Clamp(p1Paddle.y_offset - PADDLE_SPEED * rl.GetFrameTime(), -maxPaddleOffset,maxPaddleOffset)
+	}
 }
 
 draw :: proc(){
-	// Set the opengl clear color
-	// 0-1 rgba values
-	gl.ClearColor(0.2, 0.3, 0.3, 1.0)
-	// Clear the screen with the set clearcolor
-	gl.Clear(gl.COLOR_BUFFER_BIT)
+	 // 3. Draw Section
+    rl.BeginDrawing()
+    rl.ClearBackground(rl.Color{51, 76, 76, 255}) // Dark slate gray
 
-	// Own drawing code here
-}
 
-exit :: proc(){
-	// Own termination code here
-	fmt.println("Exit")
-}
+    width := f32(rl.GetScreenWidth())
+    height := f32(rl.GetScreenHeight())
 
-// Called when glfw keystate changes
-key_callback :: proc "c" (window: glfw.WindowHandle, key, scancode, action, mods: i32) {
-	// Exit program on escape pressed
-	if key == glfw.KEY_ESCAPE {
-		running = false
-	}
-}
+    p1_x := 30
+    p1_y := (height / 2) - (p1Paddle.size.y / 2) + (height / 100 * p1Paddle.y_offset)
 
-// Called when glfw window changes size
-size_callback :: proc "c" (window: glfw.WindowHandle, width, height: i32) {
-	// Set the OpenGL viewport size
-	gl.Viewport(0, 0, width, height)
+    p2_x := width - 30 - p2Paddle.size.x
+    p2_y := (height / 2) - (p2Paddle.size.y / 2) + (height / 100 * p2Paddle.y_offset)
+
+    rl.DrawRectangle(i32(p1_x), i32(p1_y), i32(p1Paddle.size.x), i32(p1Paddle.size.y), p1Paddle.color)
+	rl.DrawRectangle(i32(p2_x), i32(p2_y), i32(p2Paddle.size.x), i32(p2Paddle.size.y), p2Paddle.color)
+
+    rl.EndDrawing()
 }
