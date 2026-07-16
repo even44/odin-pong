@@ -9,10 +9,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # RETTET: Bruker nå den riktige, oppdaterte GitHub-aksjonen
       - name: Install Odin
-        uses: odin-lang/action-setup@v1
+        uses: laytan/setup-odin@v2
         with:
-          odin-version: dev
+          release: nightly # Laster ned nyeste fungerende versjon automatisk
 
       - name: Build Game
         run: odin build . -target:windows_amd64 -subsystem:windows -out:odin-pong-windows.exe
