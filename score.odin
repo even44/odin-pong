@@ -10,7 +10,7 @@ TEAM :: enum{
 }
 
 draw_score_text :: proc(score: rl.Vector2){
-	SCORE_TEXT_FONT_SIZE :: 20
+	SCORE_TEXT_FONT_SIZE :: 40
 	screenWidth := rl.GetScreenWidth()
 	scoreTextFormat := rl.TextFormat("%.0f / %.0f", score.x, score.y)
 	textWidth := rl.MeasureText(scoreTextFormat, SCORE_TEXT_FONT_SIZE)
