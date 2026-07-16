@@ -52,11 +52,13 @@ ball_check_wall_collisions :: proc(ball: ^Ball){
 	if ball.pos.x - ball.radius <= 0 {
 		ball.pos.x = ball.radius
 		reset_and_stop_ball(ball)
+		add_point(TEAM.P2)
 		ball_start_delayed(ball)
 	}
 	else if ball.pos.x + ball.radius >= screen_width {
 		ball.pos.x = screen_width - ball.radius
 		reset_and_stop_ball(ball)
+		add_point(TEAM.P1)
 		ball_start_delayed(ball)
 	}
 }

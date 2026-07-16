@@ -13,6 +13,8 @@ p2Paddle := Paddle{}
 paddles : [2]Paddle
 
 
+
+
 main :: proc() {
     // 1. Initialize Window & Context
     rl.InitWindow(512, 512, "Odin Pong - Raylib")
@@ -76,7 +78,8 @@ draw :: proc(){
 
 
 	rl.DrawCircle(i32(ball.pos.x), i32(ball.pos.y), ball.radius, rl.WHITE)
-
+	draw_score_text(score)
+	
     rl.EndDrawing()
 }
 
