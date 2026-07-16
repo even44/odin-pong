@@ -9,7 +9,7 @@ ball_current_time: f64
 ball_start_trigger_time: f64
 ball_timer_active: bool
 BALL_START_DELAY: f64 = 2
-BALL_INITIAL_SPEED: f32 = 300
+BALL_INITIAL_SPEED: f32 = 200
 BALL_STEER_FORCE: f32 = .3
 
 
