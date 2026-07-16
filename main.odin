@@ -14,7 +14,8 @@ p1Paddle := Paddle{}
 p2Paddle := Paddle{}
 paddles : [2]Paddle
 
-
+// 1. Les filen inn under kompilering (relativ sti fra der main.odin ligger)
+CRT_SHADER_SOURCE :: #load("shaders/frag/crt.fs", string)
 
 
 main :: proc() {
@@ -25,7 +26,7 @@ main :: proc() {
     fs_render_texture := rl.LoadRenderTexture(SCREEN_WIDTH,SCREEN_HEIGHT)
     defer rl.UnloadRenderTexture(fs_render_texture)
 
-    fs_shader := rl.LoadShader(nil, "shaders/frag/crt.fs")
+    fs_shader := rl.LoadShaderFromMemory(nil, cstring(raw_data(CRT_SHADER_SOURCE)))
     defer rl.UnloadShader(fs_shader)
 
     // Locate the "uTime" variable inside the loaded GLSL code

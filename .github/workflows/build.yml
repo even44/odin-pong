@@ -1,0 +1,24 @@
+name: Build Game for Windows
+
+on: [push, pull_request]
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Odin
+        uses: odin-lang/action-setup@v1
+        with:
+          odin-version: dev
+
+      - name: Build Game
+        run: odin build . -target:windows_amd64 -subsystem:windows -out:odin-pong-windows.exe
+
+      - name: Upload Executable
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-build
+          path: odin-pong-windows.exe
