@@ -39,6 +39,8 @@ ball_update :: proc(ball: ^Ball, dt: f32){
 ball_check_wall_collisions :: proc(ball: ^Ball){
 	screen_height := f32(rl.GetScreenHeight())
 	screen_width := f32(rl.GetScreenWidth())
+	screen_w_margin := ((screen_width * 0.9) - screen_width) / 2
+	screen_h_margin := ((screen_height * 0.9) - screen_height) / 2
 
 	if ball.pos.y - ball.radius <= 0 {
 		ball.pos.y = ball.radius
@@ -49,7 +51,7 @@ ball_check_wall_collisions :: proc(ball: ^Ball){
 		ball_bounce_y(ball)
 	}
 
-	if ball.pos.x - ball.radius <= 0 {
+	if ball.pos.x - ball.radius <= 0{
 		ball.pos.x = ball.radius
 		reset_and_stop_ball(ball)
 		add_point(TEAM.P2)

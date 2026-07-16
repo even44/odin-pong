@@ -10,7 +10,11 @@ TEAM :: enum{
 }
 
 draw_score_text :: proc(score: rl.Vector2){
-	rl.DrawText(rl.TextFormat("%.0f / %.0f", score.x, score.y), 10, 10 ,20, rl.WHITE)
+	SCORE_TEXT_FONT_SIZE :: 20
+	screenWidth := rl.GetScreenWidth()
+	scoreTextFormat := rl.TextFormat("%.0f / %.0f", score.x, score.y)
+	textWidth := rl.MeasureText(scoreTextFormat, SCORE_TEXT_FONT_SIZE)
+	rl.DrawText(scoreTextFormat, (screenWidth / 2) - (textWidth / 2), 10 ,SCORE_TEXT_FONT_SIZE, rl.WHITE)
 }
 
 add_point :: proc(team : TEAM){
