@@ -1,5 +1,5 @@
 #version 330
-
+// Shader generated using AI
 // 1. Raylib's automatic canvas input attributes
 in vec2 fragTexCoord; 
 in vec4 fragColor;    
